@@ -1,0 +1,8 @@
+prefix=/home/mcube-daolin/catkin_ws/devel
+
+Name: netft_rdt_driver
+Description: Description of netft_rdt_driver
+Version: 0.0.0
+Cflags: -I/home/mcube-daolin/catkin_ws/devel/include
+Libs: -L/home/mcube-daolin/catkin_ws/devel/lib 
+Requires: 

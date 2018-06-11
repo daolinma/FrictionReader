@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/mcube-daolin/catkin_ws/install/setup.sh
