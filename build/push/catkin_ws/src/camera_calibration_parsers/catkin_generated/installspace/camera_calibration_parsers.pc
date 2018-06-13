@@ -1,0 +1,8 @@
+prefix=/home/mcube-daolin/catkin_ws/install
+
+Name: camera_calibration_parsers
+Description: Description of camera_calibration_parsers
+Version: 1.11.12
+Cflags: -I/home/mcube-daolin/catkin_ws/install/include
+Libs: -L/home/mcube-daolin/catkin_ws/install/lib -lcamera_calibration_parsers
+Requires: sensor_msgs

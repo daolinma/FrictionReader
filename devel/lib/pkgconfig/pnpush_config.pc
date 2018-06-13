@@ -1,0 +1,8 @@
+prefix=/home/mcube-daolin/catkin_ws/devel
+
+Name: pnpush_config
+Description: Description of pnpush_config
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/mcube-daolin/catkin_ws/devel/lib 
+Requires: 
