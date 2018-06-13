@@ -1,5 +1,5 @@
+<?xml version="1.0"?>
 <launch>
-
 <param name="use_sim_time"  value="true" />
-<node pkg="netft_rdt_driver" type="netft_node" name="netft_node" args="--address 192.168.1.1"
-output="screen" respawn=true/>
+ <node name="netft_1"  pkg="netft_rdt_driver" type="netft_node" args= "--address 192.168.1.1 --rate 100" ns="netft_1" output="screen" respawn=true/>
+</launch>
