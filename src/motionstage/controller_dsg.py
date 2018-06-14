@@ -2,13 +2,10 @@ import gclib
 import rospy
 import roslaunch
 import netft_rdt_driver
+# import stage_position_node
 import std_msgs.msg
 from netft_rdt_driver.srv import Zero
-from std_msgs.msg import String
-import stage_position_node
-
-# from config.helper import pause
-# import config.helper as helper
+from std_msgs.msg import String,Int32MultiArray,Float32MultiArray
 
 
 # waiting for netft
@@ -16,9 +13,16 @@ def wait_for_ft_calib():
     from ik.roshelper import ROS_Wait_For_Msg
     ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
 
-# write the publisher of stage position  # TODO: Add subscriber
+# write the subscriber of stage position  # TODO: Add subscriber
 
+def callback(data):
+    rospy.loginfo("I heard %s",data.data)
 
+def listener():
+    rospy.init_node('node_name')
+    rospy.Subscriber("stage_pos", Float32MultiArray, callback)
+    # spin() simply keeps python from exiting until this node is stopped
+    rospy.spin()
 
 
 ################### Launch the F/T sensor ros node ######################
@@ -47,7 +51,7 @@ c('SPB=10000') #speead, 1000 cts/sec
 c('SPC=10000') #speead, 1000 cts/sec
 
 ####################### Scan the surface ######################
-set the motion stage Speed
+# set the motion stage Speed
 
 for rep in xrange(nrep):
     expfilename = 'record_surface=%s_shape=%s_a=%.0f_v=%.0f_rep=%03d.bag' % (opt.surface_id, shape_id, acc*1000, vel, rep)
@@ -59,6 +63,7 @@ for rep in xrange(nrep):
     c('BG AB') #begin motion
     # c('BGA') #begin motion
     # c('BGB') #begin motion
+    listener()
 
     if rep == nrep -1:
         rospy.sleep(1)   # make sure record is terminated completely
