@@ -1,2 +1,2 @@
-netft_rdt_driver
+motionstage:netft_rdt_driver
 -DCATKIN_DEVEL_PREFIX=/home/mcube-daolin/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/mcube-daolin/catkin_ws/install -G Unix Makefiles
