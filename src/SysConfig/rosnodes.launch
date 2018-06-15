@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <node name="netft_1" pkg="netft_rdt_driver" type="netft_node" args="--address 192.168.1.1 --rate 100" ns="netft_1" output="screen" />
+  <node name="netft_1" pkg="netft_rdt_driver" type="netft_node" args="--address 192.168.1.1 --rate 100" output="screen" />
   <node name="stage_position_node" pkg="motionstage" type="stage_position_node.py" />
+  <node name="mylistener" pkg="motionstage" type="mylistener.py" />
 </launch>
