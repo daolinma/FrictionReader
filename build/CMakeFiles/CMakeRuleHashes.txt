@@ -4,6 +4,7 @@ f379dee86a9c2c569735daa03330e7f1 /home/mcube-daolin/catkin_ws/devel/lib/python2.
 4090f80b0a95cc3512b2a99872a1daf6 /home/mcube-daolin/catkin_ws/devel/lib/python2.7/dist-packages/netft_rdt_driver/srv/__init__.py
 37f36a55231d3978bb507b3294bc2dc6 /home/mcube-daolin/catkin_ws/devel/share/common-lisp/ros/netft_rdt_driver/srv/Zero.lisp
 a2ffc976952c946e51a7bb6d7c2449a4 /home/mcube-daolin/catkin_ws/devel/share/gennodejs/ros/netft_rdt_driver/srv/Zero.js
+06782e442ffc7f2b8a28eb539a6dcbe5 /home/mcube-daolin/catkin_ws/devel/share/roseus/ros/motionstage/manifest.l
 35e796931d0bf140abefa9eef908a68e /home/mcube-daolin/catkin_ws/devel/share/roseus/ros/netft_rdt_driver/manifest.l
 5fa8bf500909c2db3f317f7ee2205366 /home/mcube-daolin/catkin_ws/devel/share/roseus/ros/netft_rdt_driver/srv/Zero.l
 9c7fe23b94696dab572353711c75ce3d CMakeFiles/clean_test_results
