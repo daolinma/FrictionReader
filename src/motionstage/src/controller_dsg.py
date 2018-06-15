@@ -1,20 +1,21 @@
 import gclib
 import rospy
 import roslaunch
-import netft_rdt_driver
-# import stage_position_node
+import json
 import std_msgs.msg
-from netft_rdt_driver.srv import Zero
 from std_msgs.msg import String,Int32MultiArray,Float32MultiArray
 from geometry_msgs.msg import WrenchStamped
-import settings
+
+import netft_rdt_driver
+from netft_rdt_driver.srv import Zero
+# import stage_position_node
 import mylistener
-import json
+import settings
 
 # waiting for netft
-def wait_for_ft_calib():
-    from roshelper import ROS_Wait_For_Msg
-    ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
+#def wait_for_ft_calib():
+#    from roshelper import ROS_Wait_For_Msg
+#    ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
 
 def initialize_the_motor():
     c('MO') #turn off all motors
