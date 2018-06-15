@@ -1,21 +1,21 @@
 import gclib
 import rospy
 import roslaunch
-import json
-import std_msgs.msg
-from std_msgs.msg import String,Int32MultiArray,Float32MultiArray
-from geometry_msgs.msg import WrenchStamped
-
 import netft_rdt_driver
-from netft_rdt_driver.srv import Zero
 # import stage_position_node
+import std_msgs.msg
+from netft_rdt_driver.srv import Zero
+from std_msgs.msg import String,Int32MultiArray,Float32MultiArray
+from std_srvs.srv import Empty
+from geometry_msgs.msg import WrenchStamped
+# import settings
 import mylistener
-import settings
+import json
 
 # waiting for netft
-#def wait_for_ft_calib():
-#    from roshelper import ROS_Wait_For_Msg
-#    ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
+# def wait_for_ft_calib():
+#     from roshelper import ROS_Wait_For_Msg
+#     ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
 
 def initialize_the_motor():
     c('MO') #turn off all motors
@@ -32,6 +32,14 @@ def move_motor():
     c('PRC=0') #relative move, 3000 cts
     print(' Starting move...')
     c('BG ABC') #begin motion
+
+start_read_data = rospy.ServiceProxy('start_read', Empty)
+def read_data():
+    start_read_data
+
+save_read_data = rospy.ServiceProxy('save_readings', Empty)
+def save_data():
+    save_read_data
 
 # mylistener.init()
 
@@ -71,15 +79,16 @@ shape_id = 1;   # ball
 delta = 30;     # 30um
 height = 30     #30um
 vel = 30        #30mm/s
-
-print('pos_record',mylistener.pos_record)
-print('wrench_record',mylistener.wrench_record)
-# rospy.sleep(30)
+#
+# print('pos_record',settings.pos_record)
+# print('wrench_record',settings.wrench_record)
+# rospy.sleep(130)
 
 for rep in xrange(nrep):
     expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f.csv' % (surface_id, shape_id,delta, height, vel)
+    rospy.set_param('save_file_name', expfilename)
     # rospy.sleep(30)
-    mylistener.start_read()
+    read_data()
     move_motor()
     print('hello 1')
     g.GMotionComplete('A')
@@ -87,14 +96,16 @@ for rep in xrange(nrep):
     g.GMotionComplete('C')
     print('Motion Complete')
     print(' done.')
-    mylistener.readandsave(filename = expfilename)
+    # print('pos_record',settings.pos_record)
+    save_data()
     if rep == nrep -1:
         rospy.sleep(1)   # make sure record is terminated completely
 
     ######### Record the force and torque ##########
 
-
+rospy.sleep(30)
 ############# ?? ################
 
 c('MO') #turn off all motors
 del c #delete the alias
+\
