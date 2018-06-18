@@ -85,7 +85,7 @@ vel = 30        #30mm/s
 # rospy.sleep(130)
 
 for rep in xrange(nrep):
-    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f.csv' % (surface_id, shape_id,delta, height, vel)
+    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f' % (surface_id, shape_id,delta, height, vel)
     rospy.set_param('save_file_name', expfilename)
     # rospy.sleep(30)
     read_data()
@@ -97,13 +97,16 @@ for rep in xrange(nrep):
     print('Motion Complete')
     print(' done.')
     # print('pos_record',settings.pos_record)
+
+    c('MO') #turn off all motors
+    rospy.sleep(30)
     save_data()
     if rep == nrep -1:
         rospy.sleep(1)   # make sure record is terminated completely
 
     ######### Record the force and torque ##########
 
-rospy.sleep(30)
+# rospy.sleep(30)
 ############# ?? ################
 
 c('MO') #turn off all motors
