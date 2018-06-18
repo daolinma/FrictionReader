@@ -46,8 +46,9 @@ def save_readings(): ## TODO: get this into a rosservice
     global wrench_record
     # print pos_record
     filename = rospy.get_param('save_file_name')
+    print pos_record
     with open(filename, 'w') as outfile:  # write data to 'data.json'
-        json.dump({'pos_list':pos_record, 'wrench_list': wrench_record}, outfile)
+        json.dump({'header': 'just a test','pos_list':pos_record, 'wrench_list': wrench_record}, outfile)   #TODO: find out why failing to save the file.
     rospy.sleep(3)
 
 
