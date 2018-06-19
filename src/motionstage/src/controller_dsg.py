@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# license removed for brevity
+
 import gclib
 import rospy
 import roslaunch
@@ -16,6 +19,10 @@ import json
 # def wait_for_ft_calib():
 #     from roshelper import ROS_Wait_For_Msg
 #     ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
+
+if __name__ == "__main__":
+
+    rospy.init_node('controller_dsg', log_level = rospy.INFO)
 
 def initialize_the_motor():
     c('MO') #turn off all motors
@@ -39,6 +46,7 @@ def read_data():
 
 save_read_data = rospy.ServiceProxy('save_readings', Empty)
 def save_data():
+    print 'calling save_reading service'
     save_read_data
 
 # mylistener.init()
@@ -101,6 +109,8 @@ for rep in xrange(nrep):
     c('MO') #turn off all motors
     rospy.sleep(30)
     save_data()
+    print('saved')
+    rospy.sleep(3)
     if rep == nrep -1:
         rospy.sleep(1)   # make sure record is terminated completely
 
