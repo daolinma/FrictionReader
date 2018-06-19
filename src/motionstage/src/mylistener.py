@@ -59,14 +59,11 @@ def start_read(req):
 def save_readings(req):
     global pos_record
     global wrench_record
-    # print pos_record
     filename = rospy.get_param('save_file_name')
     output_data = {'pos_list':pos_record[0], 'wrench_list': wrench_record[0] }
 
     with open(filename, 'w') as outfile:  # write data to 'data.json'
-        # json.dump( {'pos_list':pos_record, 'wrench_list': wrench_record }, outfile, cls=MyEncoder)   #TODO: find out why failing to save the file.
         json.dump(output_data, outfile)   #TODO: find out why failing to save the file.
-        # json.dump( {'pos_list':pos_record, 'wrench_list': wrench_record }, outfile)
     outfile.close()
 
     print("saving file")

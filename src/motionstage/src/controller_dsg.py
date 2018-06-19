@@ -42,12 +42,12 @@ def move_motor():
 
 start_read_data = rospy.ServiceProxy('start_read', Empty)
 def read_data():
-    start_read_data
+    start_read_data()
 
 save_read_data = rospy.ServiceProxy('save_readings', Empty)
 def save_data():
     print 'calling save_reading service'
-    save_read_data
+    save_read_data()
 
 # mylistener.init()
 
