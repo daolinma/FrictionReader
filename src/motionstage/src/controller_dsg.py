@@ -34,20 +34,23 @@ def set_the_speed():
     c('SPC=100000') #speead, 1000 cts/sec
 def move_motor():
     ######### Generate Motion of the stage ##########
-    c('PRA=-300000') #relative move, 3000 cts
-    c('PRB=300000') #relative move, 3000 ctsc
+    c('PRA=300000') #relative move, 3000 cts
+    c('PRB=-300000') #relative move, 3000 ctsc
     c('PRC=0') #relative move, 3000 cts
     print(' Starting move...')
     c('BG ABC') #begin motion
 
 start_read_data = rospy.ServiceProxy('start_read', Empty)
 def read_data():
+    print 'calling start_read service to initialize datalist'
     start_read_data()
+    print("initialized")
 
 save_read_data = rospy.ServiceProxy('save_readings', Empty)
 def save_data():
     print 'calling save_reading service'
     save_read_data()
+    print("file saved")
 
 # mylistener.init()
 
@@ -93,12 +96,12 @@ vel = 30        #30mm/s
 # rospy.sleep(130)
 
 for rep in xrange(nrep):
-    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f' % (surface_id, shape_id,delta, height, vel)
+    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f.json' % (surface_id, shape_id,delta, height, vel)
     rospy.set_param('save_file_name', expfilename)
     # rospy.sleep(30)
     read_data()
     move_motor()
-    print('hello 1')
+    # print('hello 1')
     g.GMotionComplete('A')
     g.GMotionComplete('B')
     g.GMotionComplete('C')
@@ -107,7 +110,7 @@ for rep in xrange(nrep):
     # print('pos_record',settings.pos_record)
 
     c('MO') #turn off all motors
-    rospy.sleep(30)
+    # rospy.sleep(30)
     save_data()
     print('saved')
     rospy.sleep(3)

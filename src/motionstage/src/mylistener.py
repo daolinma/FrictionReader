@@ -31,7 +31,8 @@ def ftmsg2listandflip(ftmsg):
 def callback_pos(data):
     global pos_record
     # rospy.loginfo("I heard %s",data.data)
-    pos_record.append(data.data)
+    pos=[data.data[0],data.data[1],data.data[2]]
+    pos_record.append(pos)
     # print pos_record
 
 def callback_wrench(data):
@@ -52,21 +53,29 @@ def exp_listener():
 def start_read(req):
     global pos_record
     global wrench_record
+    print("initializing")
     pos_record = []
     wrench_record = []
+    # print("initialized")
     return EmptyResponse()
 
 def save_readings(req):
     global pos_record
     global wrench_record
     filename = rospy.get_param('save_file_name')
-    output_data = {'pos_list':pos_record[0], 'wrench_list': wrench_record[0] }
-
-    with open(filename, 'w') as outfile:  # write data to 'data.json'
+    output_data = {'pos_list':pos_record, 'wrench_list': wrench_record }
+    save_path = '/home/mcube-daolin/catkin_ws/src/motionstage/'
+    filename = save_path + filename
+    # print("saving file")
+    # print(output_data)
+    # print(type(output_data))
+    with open(filename, 'w') as outfile:  # write data to json file
+        # print(type(outfile))
+        print(filename)
         json.dump(output_data, outfile)   #TODO: find out why failing to save the file.
-    outfile.close()
+        outfile.close()
 
-    print("saving file")
+    # print("file saved")
     rospy.sleep(.3)
     return EmptyResponse()
 
@@ -76,7 +85,7 @@ if __name__ == '__main__':
         rospy.init_node('lisener_node', log_level = rospy.INFO)
         s_1 = rospy.Service('start_read', Empty, start_read)
         s_1 = rospy.Service('save_readings', Empty, save_readings)
-        exp_listener()
         print ('mylistener ready!')
+        exp_listener()
     except rospy.ROSInterruptException:
         pass
