@@ -53,7 +53,7 @@ def exp_listener():
 def start_read(req):
     global pos_record
     global wrench_record
-    print("initializing")
+    print("initializing data_list")
     pos_record = []
     wrench_record = []
     # print("initialized")
@@ -64,7 +64,8 @@ def save_readings(req):
     global wrench_record
     filename = rospy.get_param('save_file_name')
     output_data = {'pos_list':pos_record, 'wrench_list': wrench_record }
-    save_path = '/home/mcube-daolin/catkin_ws/src/motionstage/'
+    # save_path = '/home/mcube-daolin/catkin_ws/src/motionstage/'
+    save_path = '/home/mcube-daolin/Dropbox (MIT)/Daolin Lab Repo/Projects/2018 Engineering Friction with Micro-textures/Data Collected/'
     filename = save_path + filename
     # print("saving file")
     # print(output_data)
