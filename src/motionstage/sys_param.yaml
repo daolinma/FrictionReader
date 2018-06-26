@@ -1,6 +1,7 @@
 /pos_reader/x: 66.0000
 /pos_reader/y: 0
 /pos_reader/z: 0
-/ScaleLinearStage: 1.0E-4   # 10000 counts/mm
-/ScaleRotaryStage: 0.00125        #800 counts/deg
+/ScaleLinearStage: 1.0E-4         # 10000 counts/mm
+/ScaleRotaryStage: 1.0E-4         #10000 counts/deg
+/ScaleRotaryStageEncoder: 0.00125        #800 counts/deg
 /mass_rubber_load: 168.9
