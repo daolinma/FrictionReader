@@ -140,12 +140,12 @@ def go_to_center():
     print('[MOTOR] Motion Complete')
 
 def tell_pos():
-    pos_x = c('TPA')
-    pos_y = c('TPB')
-    pos_z = c('TPC')
+    pos = c('TP ABC')
+#    pos_y = c('TPB')
+#    pos_z = c('TPC')
     ScaleLinearStage = rospy.get_param('/ScaleLinearStage')
     ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
-    return [int(pos_x)*ScaleLinearStage, int(pos_y)*ScaleLinearStage, int(pos_z)*ScaleRotaryStage]
+    return [int(pos[0])*ScaleLinearStage, int(pos[1])*ScaleLinearStage, int(pos[2])*ScaleRotaryStage]
 
 
 start_read_data = rospy.ServiceProxy('start_read', Empty)

@@ -23,7 +23,7 @@ def position_publisher():
 ##########  publisher ###########
     pub = rospy.Publisher('stage_pos', Float32MultiArray, queue_size=10)
     rospy.init_node('stage_position_node', anonymous=True)
-    rate = rospy.Rate(100) # 10hz
+    rate = rospy.Rate(100) # 100hz
 
     # data_msg = Int32MultiArray()
     data_msg = Float32MultiArray()
@@ -32,10 +32,10 @@ def position_publisher():
     # data_msg.layout.dim[0].label = 'x,y,z'
     data_msg.data = []
     while not rospy.is_shutdown():
-        pos_x = c('TPA')
-        pos_y = c('TPB')
-        pos_z = c('TPC')
-        data_msg.data  =[int(pos_x)*ScaleLinearStage,int(pos_y)*ScaleLinearStage,int(pos_z)*ScaleRotaryStage]
+        pos = c('TP ABC')
+#        pos_y = c('TPB')
+#        pos_z = c('TPC')
+        data_msg.data  =[int(pos[0])*ScaleLinearStage,int(pos[1])*ScaleLinearStage,int(pos[2])*ScaleRotaryStage]
         pub.publish(data_msg)
 
 if __name__ == '__main__':
