@@ -33,7 +33,6 @@ def position_publisher():
     data_msg.data = []
     while not rospy.is_shutdown():
         pos_x = c('TPA')
-        # print pos
         pos_y = c('TPB')
         pos_z = c('TPC')
         data_msg.data  =[int(pos_x)*ScaleLinearStage,int(pos_y)*ScaleLinearStage,int(pos_z)*ScaleRotaryStage]

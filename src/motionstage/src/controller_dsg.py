@@ -21,6 +21,8 @@ import json
 #     from roshelper import ROS_Wait_For_Msg
 #     ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
 
+
+
 if __name__ == "__main__":
 
     rospy.init_node('controller_dsg', log_level = rospy.INFO)
@@ -29,46 +31,56 @@ def initialize_the_motor():
     c('MO') #turn off all motors
     c('SH ABC')    # Servo Here: servo A
     # c('SHB')    # Servo Here: servo A
-def set_the_speed(angle = 0.707):
+def set_the_speed(angle = 1.5707):
     read_vec = [np.cos(angle), np.sin(angle), 0]
     vel = 40000
     # print(str(int(vel*read_vec[0])), str(int(vel*read_vec[1])),str(int(vel*read_vec[2])))
-    print('setting speed to '+str(int(vel*read_vec[0]))+' ,'+str(int(vel*read_vec[1]))+' ,' +str(int(vel*read_vec[2]))  )
+    print('setting speed to '+str(int(vel*read_vec[0]))+' ,'+str(int(vel*read_vec[1]))+' ,' +str(20000)  )
     c('SPA='+str(int(vel*read_vec[0]))) #speead, 1000 cts/sec
     c('SPB='+str(int(vel*read_vec[1]))) #speead, 1000 cts/sec
-    c('SPC='+str(int(vel*read_vec[2]))) #speead, 1000 cts/sec
+    c('SPC='+str(str(20000))) #speead, 1000 cts/sec
 
 def mm2count(read_vec_mm = [0.1, 0.2, 0.3]):
-    ScaleLinearStage = rospy.get_param('/ScaleLinearStage')
-    ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
+    global ScaleLinearStage
+    global ScaleRotaryStage
+    global ScaleRotaryStageEncoder
     # print(read_vec_mm)
     # print(type(read_vec_mm))
     return  [int(read_vec_mm[0]/ScaleLinearStage), int(read_vec_mm[1]/ScaleLinearStage),int(read_vec_mm[2]/ScaleRotaryStage)]
 
 def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
+    global ScaleLinearStage
+    global ScaleRotaryStage
+    global ScaleRotaryStageEncoder
+
     from numpy import linalg as LA
     flag = True
     # epsilon_sqr = epsilon*epsilon;
     while flag:
-        rospy.sleep(0.5)
-        pos = [int(c('TPA')), int(c('TPB')), int(c('TPC'))]
-        # pos[1] = int(c('TPB'))
-        # pos[2] = int(c('TPC'))
+
+        pos = [int(c('TPA')), int(c('TPB')), int(c('TPC'))*ScaleRotaryStageEncoder/ScaleRotaryStage]
+
         dis_error = np.array(pos) - np.array(end_point)
+        print(pos)
+        print('dis_error',dis_error)
+        print('dis_error norm',LA.norm(dis_error))
         # dis_error_sqr = dis_error[0]*dis_error[0] + dis_error[1]*dis_error[1] + dis_error[2]*dis_error[2]
         if LA.norm(dis_error) < epsilon:
             flag = False
+        rospy.sleep(0.5)
 
 
 
-def move_motor(angle = 1.5707):
+def move_motor(angle = 1.5707, rot = 0):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
     readlength = 65         # 80mm
     read_vec = [np.cos(angle), np.sin(angle), 0]
     start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
+    start_point[2] = 180/np.pi
     end_point = np.array(pos_reader) + np.array(read_vec)*0.5*readlength
+    end_point[2] = 180/np.pi
     print('start_point = '+str(start_point))
     print('end_point = '+str(end_point))
     start_point_count = mm2count(start_point)
@@ -77,14 +89,14 @@ def move_motor(angle = 1.5707):
     print('[MOTOR] Speed has been reset')
     print('PAA='+str(start_point_count[0]))
     print('PAB='+str(start_point_count[1]))
-    print('PAC='+str(start_point_count[2]))
+    print('PRC='+str(start_point_count[2]))
     # c('PAA=660000')
     # c('PAB=-256190')
     # c('PAC=0')
     c('SH ABC')
     c('PAA='+str(start_point_count[0])) #relative move, 3000 cts
     c('PAB='+str(start_point_count[1])) #relative move, 3000 ctsc
-    c('PAC='+str(start_point_count[2])) #relative move, 3000 cts
+    c('PRC='+str(start_point_count[2])) #relative move, 3000 cts
     # c('PA '+str(start_point_count[0])+' ,'+str(start_point_count[1])+' ,'+str(start_point_count[2])) #relative move, 3000 cts
     c('TW 10000,10000,10000')  # 10s
     c('BG ABC') #begin motion
@@ -115,56 +127,33 @@ def move_motor(angle = 1.5707):
     c('ST')
     print('[MOTOR] Motion Complete')
     rospy.sleep(1)
-
-def command_stage_to(end_point_count = [1250000,1250000,0], time_out = 10000):
-    print(end_point_count)
-    print('PAA='+str(10000))
-    rospy.sleep(1)
-    # c('PAA='+str(10000)) #relative move, 3000 cts
-    # c('PAB='+str(10000)) #relative move, 3000 ctsc
-    # c('PAC='+str(10000)) #relative move, 3000 cts
-
-    print('[MOTOR] Moving to end_point ...'+str(end_point_count))
-    c('BG ABC') #begin motion
-    # g.GMotionComplete('ABC')
-    print('BG command sent')
-    check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
-    print('sending ST')
-    c('ST')
-    print('[MOTOR] Motion Complete')
-
-def go_to_center():
-    set_the_speed()
-    command_stage_to(end_point_count = [2500000,2500000,0], time_out = 20000)
-    pos_x = c('TPA')
-    pos_y = c('TPB')
-    pos_z = c('TPC')
-    max_count = [int(pos_x),int(pos_y) ,int(pos_z)]
-    middle_count = [max_count[0]-1250000, max_count[1]-1250000, 0 ]
-    rospy.set_param('middle_count', middle_count)
+def go_to_center(rot = 0):
 
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
     end_point = np.array(pos_reader)
     print('end_point = '+str(end_point))
     end_point_count = mm2count(end_point)
 
-    center_count = [end_point_count[0]+middle_count[0], end_point_count[1]+middle_count[1], end_point_count[2]+middle_count[2] ]
-    # c('PAA= 660000')
-    # c('PAB= 0')
-    # # c('PAC=-1') #relative move, 3000 cts
+    ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
+    end_point_count[2] = int(rot*180/np.pi/ScaleRotaryStage)
+    print(end_point_count[2], rot)
+    c('PAA= '+str(end_point_count[0]))
+    c('PAB= '+str(end_point_count[1]))
+    c('PAC= '+str(end_point_count[2]))
+
+    # c('PAC=-1') #relative move, 3000 cts
     print('####################################################')
     print('[MOTOR] Moving to center...')
     print('####################################################')
 
-    command_stage_to(end_point_count = [1250000,1250000,0], time_out = 10000)
-    # c('TW '+time_out+','+time_out+','+time_out)  # 10s
-    # c('BG AB') #begin motion
-    # # c('MC AB') #begin motion
-    # check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
-    # # g.GMotionComplete('ABC')
-    # print('sending ST')
-    # c('ST')
-    # print('[MOTOR] Motion Complete')
+    c('TW 10000,10000,10000')  # 10s
+    c('BG ABC') #begin motion
+    # c('MC AB') #begin motion
+    check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
+    # g.GMotionComplete('ABC')
+    print('sending ST')
+    c('ST')
+    print('[MOTOR] Motion Complete')
 
 def tell_pos():
     pos_x = c('TPA')
@@ -201,9 +190,16 @@ g.GOpen('169.254.93.220 --direct')
 print(g.GInfo())
 c = g.GCommand      # alias the command callable
 
-go_to_center()
+ScaleLinearStage = rospy.get_param('/ScaleLinearStage')
+ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
+ScaleRotaryStageEncoder = rospy.get_param('/ScaleRotaryStageEncoder')
+
+rot = 1.0/6*np.pi
+
 initialize_the_motor()      # initalization
 set_the_speed()             # set the motion stage Speed
+go_to_center(rot)
+
 
 ####################### Calibrate F/T sensor #########################
 rospy.sleep(1)
@@ -224,7 +220,7 @@ shape_id = 1;   # ball
 delta = 30;     # 30um
 height = 30     #30um
 vel = 30        #30mm/s
-rot = 1.0/6*np.pi
+
 
 # rospy.sleep(30)
 
@@ -236,7 +232,7 @@ for rep in xrange(nrep):
     rospy.set_param('save_file_name', expfilename)
     print (expfilename)
     set_the_speed(angle = 0)
-    move_motor(angle)
+    move_motor(angle,rot)
     # rospy.sleep(30)
     save_data()
     print('saved')
