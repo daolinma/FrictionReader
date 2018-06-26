@@ -116,6 +116,8 @@ def move_motor(angle = 0.707):
     print('[MOTOR] Motion Complete')
     rospy.sleep(1)
 def go_to_center():
+
+    tell_pos()
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
     end_point = np.array(pos_reader)
     print('end_point = '+str(end_point))
@@ -198,7 +200,7 @@ shape_id = 1;   # ball
 delta = 30;     # 30um
 height = 30     #30um
 vel = 30        #30mm/s
-
+rot = 1.0/6*np.pi
 
 # rospy.sleep(30)
 
@@ -206,7 +208,7 @@ angle_step = 1.0*np.pi/nrep
 for rep in xrange(nrep):
     print('rep = '+str(rep) )
     angle = rep*angle_step
-    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, angle, rep)
+    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot%.0f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
     rospy.set_param('save_file_name', expfilename)
     print (expfilename)
     set_the_speed(angle = 0)
