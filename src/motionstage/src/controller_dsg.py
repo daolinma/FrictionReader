@@ -31,7 +31,7 @@ def initialize_the_motor():
     c('MO') #turn off all motors
     c('SH ABC')    # Servo Here: servo A
     # c('SHB')    # Servo Here: servo A
-def set_the_speed(angle = 1.5707):
+def set_the_speed(angle = 0.7853981633974483):
     read_vec = [np.cos(angle), np.sin(angle), 0]
     vel = 40000
     # print(str(int(vel*read_vec[0])), str(int(vel*read_vec[1])),str(int(vel*read_vec[2])))
@@ -75,12 +75,12 @@ def move_motor(angle = 1.5707, rot = 0):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
-    readlength = 65         # 80mm
+    readlength = 60         # 80mm
     read_vec = [np.cos(angle), np.sin(angle), 0]
     start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
-    start_point[2] = 180/np.pi
+    start_point[2] = rot*180/np.pi
     end_point = np.array(pos_reader) + np.array(read_vec)*0.5*readlength
-    end_point[2] = 180/np.pi
+    end_point[2] = rot*180/np.pi
     print('start_point = '+str(start_point))
     print('end_point = '+str(end_point))
     start_point_count = mm2count(start_point)
@@ -89,14 +89,14 @@ def move_motor(angle = 1.5707, rot = 0):
     print('[MOTOR] Speed has been reset')
     print('PAA='+str(start_point_count[0]))
     print('PAB='+str(start_point_count[1]))
-    print('PRC='+str(start_point_count[2]))
+    print('PAC='+str(start_point_count[2]))
     # c('PAA=660000')
     # c('PAB=-256190')
     # c('PAC=0')
     c('SH ABC')
     c('PAA='+str(start_point_count[0])) #relative move, 3000 cts
     c('PAB='+str(start_point_count[1])) #relative move, 3000 ctsc
-    c('PRC='+str(start_point_count[2])) #relative move, 3000 cts
+    c('PAC='+str(start_point_count[2])) #relative move, 3000 cts
     # c('PA '+str(start_point_count[0])+' ,'+str(start_point_count[1])+' ,'+str(start_point_count[2])) #relative move, 3000 cts
     c('TW 10000,10000,10000')  # 10s
     c('BG ABC') #begin motion
@@ -143,7 +143,7 @@ def go_to_center(rot = 0):
 
     # c('PAC=-1') #relative move, 3000 cts
     print('####################################################')
-    print('[MOTOR] Moving to center...')
+    print('[MOTOR] Moving to center...',end_point_count)
     print('####################################################')
 
     c('TW 10000,10000,10000')  # 10s
