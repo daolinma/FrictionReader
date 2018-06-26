@@ -61,7 +61,7 @@ def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
 
 
 
-def move_motor(angle = 0.707):
+def move_motor(angle = 1.5707):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
@@ -115,37 +115,64 @@ def move_motor(angle = 0.707):
     c('ST')
     print('[MOTOR] Motion Complete')
     rospy.sleep(1)
-def go_to_center():
 
-    tell_pos()
+def command_stage_to(end_point_count = [1250000,1250000,0], time_out = 10000):
+    print(end_point_count)
+    print('PAA='+str(10000))
+    rospy.sleep(1)
+    # c('PAA='+str(10000)) #relative move, 3000 cts
+    # c('PAB='+str(10000)) #relative move, 3000 ctsc
+    # c('PAC='+str(10000)) #relative move, 3000 cts
+
+    print('[MOTOR] Moving to end_point ...'+str(end_point_count))
+    c('BG ABC') #begin motion
+    # g.GMotionComplete('ABC')
+    print('BG command sent')
+    check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
+    print('sending ST')
+    c('ST')
+    print('[MOTOR] Motion Complete')
+
+def go_to_center():
+    set_the_speed()
+    command_stage_to(end_point_count = [2500000,2500000,0], time_out = 20000)
+    pos_x = c('TPA')
+    pos_y = c('TPB')
+    pos_z = c('TPC')
+    max_count = [int(pos_x),int(pos_y) ,int(pos_z)]
+    middle_count = [max_count[0]-1250000, max_count[1]-1250000, 0 ]
+    rospy.set_param('middle_count', middle_count)
+
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
     end_point = np.array(pos_reader)
     print('end_point = '+str(end_point))
     end_point_count = mm2count(end_point)
 
-    c('PAA= 660000')
-    c('PAB= 0')
-    # c('PAC=-1') #relative move, 3000 cts
+    center_count = [end_point_count[0]+middle_count[0], end_point_count[1]+middle_count[1], end_point_count[2]+middle_count[2] ]
+    # c('PAA= 660000')
+    # c('PAB= 0')
+    # # c('PAC=-1') #relative move, 3000 cts
     print('####################################################')
     print('[MOTOR] Moving to center...')
     print('####################################################')
 
-    c('TW 10000,10000,10000')  # 10s
-    c('BG AB') #begin motion
-    # c('MC AB') #begin motion
-    check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
-    # g.GMotionComplete('ABC')
-    print('sending ST')
-    c('ST')
-    print('[MOTOR] Motion Complete')
+    command_stage_to(end_point_count = [1250000,1250000,0], time_out = 10000)
+    # c('TW '+time_out+','+time_out+','+time_out)  # 10s
+    # c('BG AB') #begin motion
+    # # c('MC AB') #begin motion
+    # check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
+    # # g.GMotionComplete('ABC')
+    # print('sending ST')
+    # c('ST')
+    # print('[MOTOR] Motion Complete')
 
 def tell_pos():
-    pos = c('TP ABC')
-#    pos_y = c('TPB')
-#    pos_z = c('TPC')
+    pos_x = c('TPA')
+    pos_y = c('TPB')
+    pos_z = c('TPC')
     ScaleLinearStage = rospy.get_param('/ScaleLinearStage')
     ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
-    return [int(pos[0])*ScaleLinearStage, int(pos[1])*ScaleLinearStage, int(pos[2])*ScaleRotaryStage]
+    return [int(pos_x)*ScaleLinearStage, int(pos_y)*ScaleLinearStage, int(pos_z)*ScaleRotaryStage]
 
 
 start_read_data = rospy.ServiceProxy('start_read', Empty)
@@ -159,9 +186,6 @@ def save_data():
     print 'calling save_reading service'
     save_read_data()
     print("file saved")
-
-
-
 
 
 ################### Launch the F/T sensor ros node ######################
