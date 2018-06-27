@@ -71,11 +71,11 @@ def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
 
 
 
-def move_motor(angle = 1.5707, rot = 0):
+def move_motor(angle = 0.7853981633974483, rot = 0):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
-    readlength = 60         # 80mm
+    readlength = 65         # 80mm
     read_vec = [np.cos(angle), np.sin(angle), 0]
     start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
     start_point[2] = rot*180/np.pi
@@ -129,6 +129,7 @@ def move_motor(angle = 1.5707, rot = 0):
     rospy.sleep(1)
 def go_to_center(rot = 0):
 
+    tell_pos()
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
     end_point = np.array(pos_reader)
     print('end_point = '+str(end_point))
@@ -177,12 +178,19 @@ def save_data():
     print("file saved")
 
 
+
+
+
 ################### Launch the F/T sensor ros node ######################
 uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
 roslaunch.configure_logging(uuid)
 launch = roslaunch.parent.ROSLaunchParent(uuid, ["/home/mcube-daolin/catkin_ws/src/SysConfig/rosnodes.launch"])
 launch.start()
 
+setZero = rospy.ServiceProxy('/zero', Zero)
+# rospy.sleep(3)
+# setZero()
+# rospy.sleep(30)
 
 ####################### Establish the connection to controller through Ethernet #########################
 g = gclib.py()
@@ -203,7 +211,6 @@ go_to_center(rot)
 
 ####################### Calibrate F/T sensor #########################
 rospy.sleep(1)
-setZero = rospy.ServiceProxy('/zero', Zero)
 rospy.sleep(0.5)
 print('sleeping for 8s, Please make sure all masses removed before calibration')
 rospy.sleep(8)
@@ -215,33 +222,33 @@ rospy.sleep(15)
 # c('MO') #turn off all motors
 
 nrep = 20
+nrep_rot = 6
 surface_id = 1; # parallel
 shape_id = 1;   # ball
 delta = 30;     # 30um
 height = 30     #30um
 vel = 30        #30mm/s
 
-
-# rospy.sleep(30)
-
 angle_step = 1.0*np.pi/nrep
-for rep in xrange(nrep):
-    print('rep = '+str(rep) )
-    angle = rep*angle_step
-    expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot%.0f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
-    rospy.set_param('save_file_name', expfilename)
-    print (expfilename)
-    set_the_speed(angle = 0)
-    move_motor(angle,rot)
-    # rospy.sleep(30)
-    save_data()
-    print('saved')
-    rospy.sleep(0.5)
-    if rep == nrep -1:
-        rospy.sleep(1)   # make sure record is terminated completely
-
-    # tell current position
-    print(tell_pos())
+# rospy.sleep(30)
+for rot_rep in xrange(nrep_rot):
+    rot = (rot_rep-1)*1.0/6*np.pi
+    for rep in xrange(nrep):
+        print('rep = '+str(rep))
+        angle = rep*angle_step
+        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
+        rospy.set_param('save_file_name', expfilename)
+        print (expfilename)
+        set_the_speed(angle = angle)
+        move_motor(angle,rot)
+        # rospy.sleep(30)
+        save_data()
+        print('saved')
+        rospy.sleep(0.5)
+        if rep == nrep -1:
+            rospy.sleep(1)   # make sure record is terminated completely
+        # tell current position
+        print(tell_pos())
 
     ######### Record the force and torque ##########
 
