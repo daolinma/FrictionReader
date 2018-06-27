@@ -7,7 +7,7 @@ from std_msgs.msg import String,Int32MultiArray,Float32MultiArray
 
 
 ScaleLinearStage = 1.0/10000;   # 10000 counts/mm
-ScaleRotaryStage = 1.0/800;        #800 counts/deg
+ScaleRotaryStageEncoder = 1.0/800;        #800 counts/deg
 
 # Define PositionType  # TODO: int32?
 
@@ -35,7 +35,7 @@ def position_publisher():
         pos_x = c('TPA')
         pos_y = c('TPB')
         pos_z = c('TPC')
-        data_msg.data  =[int(pos_x)*ScaleLinearStage,int(pos_y)*ScaleLinearStage,int(pos_z)*ScaleRotaryStage]
+        data_msg.data  =[int(pos_x)*ScaleLinearStage,int(pos_y)*ScaleLinearStage,int(pos_z)*ScaleRotaryStageEncoder]
         pub.publish(data_msg)
 
 if __name__ == '__main__':
