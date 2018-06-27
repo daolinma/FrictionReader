@@ -119,6 +119,7 @@ def move_motor(angle = 0.7853981633974483, rot = 0):
     print(' Starting move...')
     print(' Moving to end_point for this line...')
     read_data()
+    rospy.sleep(.5)
     print('[MOTOR] Speed has been reset')
     c('BG ABC') #begin motion
     # g.GMotionComplete('ABC')
