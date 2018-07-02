@@ -225,9 +225,9 @@ rospy.sleep(15)
 
 nrep = 20
 nrep_rot = 1
-surface_id = 1; # parallel
-shape_id = 1;   # ball
-delta = 30;     # 30um
+surface_id = 1 # parallel
+shape_id = 1   # ball
+delta = 30     # 30um
 height = 30     #30um
 vel = 30        #30mm/s
 

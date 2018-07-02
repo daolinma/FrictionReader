@@ -6,8 +6,8 @@ import gclib
 from std_msgs.msg import String,Int32MultiArray,Float32MultiArray
 
 
-ScaleLinearStage = 1.0/10000;   # 10000 counts/mm
-ScaleRotaryStageEncoder = 1.0/800;        #800 counts/deg
+ScaleLinearStage = 1.0/10000   # 10000 counts/mm
+ScaleRotaryStageEncoder = 1.0/800        #800 counts/deg
 
 # Define PositionType  # TODO: int32?
 
