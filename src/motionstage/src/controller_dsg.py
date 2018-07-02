@@ -188,6 +188,7 @@ roslaunch.configure_logging(uuid)
 launch = roslaunch.parent.ROSLaunchParent(uuid, ["/home/mcube-daolin/catkin_ws/src/SysConfig/rosnodes.launch"])
 launch.start()
 
+rospy.sleep(0.5)
 setZero = rospy.ServiceProxy('/zero', Zero)
 # rospy.sleep(3)
 # setZero()
@@ -223,7 +224,7 @@ rospy.sleep(15)
 # c('MO') #turn off all motors
 
 nrep = 20
-nrep_rot = 6
+nrep_rot = 1
 surface_id = 1; # parallel
 shape_id = 1;   # ball
 delta = 30;     # 30um

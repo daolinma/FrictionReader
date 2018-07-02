@@ -37,6 +37,7 @@ def position_publisher():
         pos_z = c('TPC')
         data_msg.data  =[int(pos_x)*ScaleLinearStage,int(pos_y)*ScaleLinearStage,int(pos_z)*ScaleRotaryStageEncoder]
         pub.publish(data_msg)
+        rate.sleep()
 
 if __name__ == '__main__':
     try:
