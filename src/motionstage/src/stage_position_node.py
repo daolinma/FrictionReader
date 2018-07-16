@@ -32,10 +32,12 @@ def position_publisher():
     # data_msg.layout.dim[0].label = 'x,y,z'
     data_msg.data = []
     while not rospy.is_shutdown():
-        pos_x = c('TPA')
-        pos_y = c('TPB')
-        pos_z = c('TPC')
-        data_msg.data  =[int(pos_x)*ScaleLinearStage,int(pos_y)*ScaleLinearStage,int(pos_z)*ScaleRotaryStageEncoder]
+        pos_all = c('TP')
+        pos = pos_all.split(',')
+        # pos_x = c('TPA')
+        # pos_y = c('TPB')
+        # pos_z = c('TPC')
+        data_msg.data  =[int(pos[0])*ScaleLinearStage,int(pos[1])*ScaleLinearStage,int(pos[2])*ScaleRotaryStageEncoder]
         pub.publish(data_msg)
         rate.sleep()
 
