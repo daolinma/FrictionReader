@@ -231,7 +231,7 @@ delta = 30     # 30um
 height = 30     #30um
 vel = 30        #30mm/s
 
-angle_step = 1.0*np.pi/nrep
+angle_step = 2.0*np.pi/nrep
 # rospy.sleep(30)
 for rot_rep in xrange(nrep_rot):
     rot = (rot_rep-1)*1.0/6*np.pi
