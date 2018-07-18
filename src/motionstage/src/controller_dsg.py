@@ -16,15 +16,8 @@ from geometry_msgs.msg import WrenchStamped
 import mylistener
 import json
 
-# waiting for netft
-# def wait_for_ft_calib():
-#     from roshelper import ROS_Wait_For_Msg
-#     ROS_Wait_For_Msg('/netft_data', geometry_msgs.msg.WrenchStamped).getmsg()
-
-
 
 if __name__ == "__main__":
-
     rospy.init_node('controller_dsg', log_level = rospy.INFO)
 
 def initialize_the_motor():
@@ -178,10 +171,6 @@ def save_data():
     save_read_data()
     print("file saved")
 
-
-
-
-
 ################### Launch the F/T sensor ros node ######################
 uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
 roslaunch.configure_logging(uuid)
@@ -204,7 +193,7 @@ ScaleLinearStage = rospy.get_param('/ScaleLinearStage')
 ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
 ScaleRotaryStageEncoder = rospy.get_param('/ScaleRotaryStageEncoder')
 
-rot = 1.0/6*np.pi
+rot = 0.0/6*np.pi
 
 initialize_the_motor()      # initalization
 set_the_speed()             # set the motion stage Speed
@@ -234,7 +223,7 @@ vel = 30        #30mm/s
 angle_step = 2.0*np.pi/nrep
 # rospy.sleep(30)
 for rot_rep in xrange(nrep_rot):
-    rot = (rot_rep-1)*1.0/6*np.pi
+    rot = (rot_rep)*1.0/6*np.pi
     for rep in xrange(nrep):
         print('rep = '+str(rep))
         angle = rep*angle_step
