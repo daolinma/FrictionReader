@@ -212,7 +212,7 @@ rospy.sleep(15)
 
 # c('MO') #turn off all motors
 
-nrep = 20
+nrep = 36
 nrep_rot = 1
 surface_id = 1 # parallel
 shape_id = 1   # ball
@@ -222,6 +222,27 @@ vel = 30        #30mm/s
 
 angle_step = 2.0*np.pi/nrep
 # rospy.sleep(30)
+# rot_list = [0, 0.5*np.pi, 0, 0.5*np.pi]
+# angle_list = [0, 0.5*np.pi, 0.5*np.pi, 0]
+
+# for rep in range(4):
+#     print('rep = '+str(rep))
+#     angle = angle_list[rep]
+#     rot = rot_list[rep]
+#     expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
+#     rospy.set_param('save_file_name', expfilename)
+#     print (expfilename)
+#     set_the_speed(angle = angle)
+#     move_motor(angle,rot)
+#     # rospy.sleep(30)
+#     save_data()
+#     print('saved')
+#     rospy.sleep(0.5)
+#     if rep == nrep -1:
+#         rospy.sleep(1)   # make sure record is terminated completely
+#     # tell current position
+#     print(tell_pos())
+
 for rot_rep in xrange(nrep_rot):
     rot = (rot_rep)*1.0/6*np.pi
     for rep in xrange(nrep):
