@@ -22,23 +22,21 @@ if __name__ == "__main__":
 
 def initialize_the_motor():
     c('MO') #turn off all motors
-    c('SH ABC')    # Servo Here: servo A
-    # c('SHB')    # Servo Here: servo A
+    c('SH ABC')    # Servo Here: servo ABC
+
 def set_the_speed(angle = 0.7853981633974483):
     read_vec = [np.cos(angle), np.sin(angle), 0]
     vel = 40000
-    # print(str(int(vel*read_vec[0])), str(int(vel*read_vec[1])),str(int(vel*read_vec[2])))
-    print('setting speed to '+str(int(vel*read_vec[0]))+' ,'+str(int(vel*read_vec[1]))+' ,' +str(20000)  )
-    c('SPA='+str(int(vel*read_vec[0]))) #speead, 1000 cts/sec
-    c('SPB='+str(int(vel*read_vec[1]))) #speead, 1000 cts/sec
-    c('SPC='+str(str(20000))) #speead, 1000 cts/sec
+
+    print('Setting speed to '+str(int(vel*read_vec[0]))+' ,'+str(int(vel*read_vec[1]))+' ,' +str(20000)  )
+    c('SPA='+str(int(vel*read_vec[0])))     #speed, ? cts/sec
+    c('SPB='+str(int(vel*read_vec[1])))     #speed, ? cts/sec
+    c('SPC='+str(str(20000)))               #speed, ? cts/sec
 
 def mm2count(read_vec_mm = [0.1, 0.2, 0.3]):
     global ScaleLinearStage
     global ScaleRotaryStage
     global ScaleRotaryStageEncoder
-    # print(read_vec_mm)
-    # print(type(read_vec_mm))
     return  [int(read_vec_mm[0]/ScaleLinearStage), int(read_vec_mm[1]/ScaleLinearStage),int(read_vec_mm[2]/ScaleRotaryStage)]
 
 def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
@@ -48,23 +46,18 @@ def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
 
     from numpy import linalg as LA
     flag = True
-    # epsilon_sqr = epsilon*epsilon;
     while flag:
-
         pos = [int(c('TPA')), int(c('TPB')), int(c('TPC'))*ScaleRotaryStageEncoder/ScaleRotaryStage]
-
         dis_error = np.array(pos) - np.array(end_point)
         print(pos)
-        print('dis_error',dis_error)
-        print('dis_error norm',LA.norm(dis_error))
-        # dis_error_sqr = dis_error[0]*dis_error[0] + dis_error[1]*dis_error[1] + dis_error[2]*dis_error[2]
+        print('     dis_error',dis_error)
+        print('     dis_error norm',LA.norm(dis_error))
         if LA.norm(dis_error) < epsilon:
             flag = False
         rospy.sleep(0.5)
 
 
-
-def move_motor(angle = 0.7853981633974483, rot = 0):
+def move_stages(angle = 0.7853981633974483, rot = 0):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
@@ -83,23 +76,17 @@ def move_motor(angle = 0.7853981633974483, rot = 0):
     print('PAA='+str(start_point_count[0]))
     print('PAB='+str(start_point_count[1]))
     print('PAC='+str(start_point_count[2]))
-    # c('PAA=660000')
-    # c('PAB=-256190')
-    # c('PAC=0')
+ 
     c('SH ABC')
     c('PAA='+str(start_point_count[0])) #relative move, 3000 cts
     c('PAB='+str(start_point_count[1])) #relative move, 3000 ctsc
     c('PAC='+str(start_point_count[2])) #relative move, 3000 cts
-    # c('PA '+str(start_point_count[0])+' ,'+str(start_point_count[1])+' ,'+str(start_point_count[2])) #relative move, 3000 cts
     c('TW 10000,10000,10000')  # 10s
     c('BG ABC') #begin motion
     print(' Moving to start_point for this line...')
-    # g.GMotionComplete('ABC')
     check_motion_complete([start_point_count[0],start_point_count[1],start_point_count[2]])
-    # rospy.sleep(5)
     print('sending ST')
     c('ST')
-    # print('sent ST')
     print('[MOTOR] Motion Complete')
     rospy.sleep(1)
 
@@ -136,28 +123,81 @@ def go_to_center(rot = 0):
     c('PAB= '+str(end_point_count[1]))
     c('PAC= '+str(end_point_count[2]))
 
-    # c('PAC=-1') #relative move, 3000 cts
     print('####################################################')
-    print('[MOTOR] Moving to center...',end_point_count)
+    print('[MOTOR] Moving to center of the sample...',end_point_count)
     print('####################################################')
 
     c('TW 10000,10000,10000')  # 10s
     c('BG ABC') #begin motion
-    # c('MC AB') #begin motion
     check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
-    # g.GMotionComplete('ABC')
     print('sending ST')
     c('ST')
     print('[MOTOR] Motion Complete')
 
+def scanthesample(angle,rot):
+    # initialize_the_motor()
+    c('SH ABC')
+    pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
+    readlength = 65         # 80mm
+    read_vec = [np.cos(angle), np.sin(angle), 0]
+    start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
+    start_point[2] = rot*180/np.pi
+    end_point = np.array(pos_reader) + np.array(read_vec)*0.5*readlength
+    end_point[2] = rot*180/np.pi
+    print('start_point = '+str(start_point))
+    print('end_point = '+str(end_point))
+    start_point_count = mm2count(start_point)
+    end_point_count = mm2count(end_point)
+    set_the_speed()
+    print('[MOTOR] Speed has been reset')
+    print('PAA='+str(start_point_count[0]))
+    print('PAB='+str(start_point_count[1]))
+    print('PAC='+str(start_point_count[2]))
+    
+    set_the_speed()
+    go_to_pose(start_point_count)
+    rospy.sleep(1)
+
+    ######### Generate Motion of the stage ##########
+    read_data()
+    set_the_speed(angle)
+    go_to_pose(end_point_count)
+    rospy.sleep(1)
+
+def go_to_pose(end_pose=[0,0,0]):
+    tell_pos()
+    pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
+    end_point = np.array(pos_reader)
+    print('end_point = '+str(end_point))
+    end_point_count = mm2count(end_point)
+
+    ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
+    end_point_count[2] = int(rot*180/np.pi/ScaleRotaryStage)
+    print(end_point_count[2], rot)
+    c('PAA= '+str(end_point_count[0]))
+    c('PAB= '+str(end_point_count[1]))
+    c('PAC= '+str(end_point_count[2]))
+
+    print('####################################################')
+    print('[MOTOR] Moving to target pose...',end_point_count)
+    print('####################################################')
+
+    c('TW 10000,10000,10000')  # 10s
+    c('BG ABC') #begin motion
+    check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
+    print('sending ST command')
+    c('ST')
+    print('[MOTOR] Motion Complete')
+
 def tell_pos():
-    pos_x = c('TPA')
-    pos_y = c('TPB')
-    pos_z = c('TPC')
+    pos = c('TP')
+    pos_i = pos.split(',')
+    # pos_x = c('TPA')
+    # pos_y = c('TPB')
+    # pos_z = c('TPC')
     ScaleLinearStage = rospy.get_param('/ScaleLinearStage')
     ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
-    return [int(pos_x)*ScaleLinearStage, int(pos_y)*ScaleLinearStage, int(pos_z)*ScaleRotaryStage]
-
+    return [int(pos_i[0])*ScaleLinearStage, int(pos_i[1])*ScaleLinearStage, int(pos_i[2])*ScaleRotaryStage]
 
 start_read_data = rospy.ServiceProxy('start_read', Empty)
 def read_data():
@@ -170,12 +210,6 @@ def save_data():
     print 'calling save_reading service'
     save_read_data()
     print("file saved")
-
-################### Launch the F/T sensor ros node ######################
-uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-roslaunch.configure_logging(uuid)
-launch = roslaunch.parent.ROSLaunchParent(uuid, ["/home/mcube-daolin/catkin_ws/src/SysConfig/rosnodes.launch"])
-launch.start()
 
 rospy.sleep(0.5)
 setZero = rospy.ServiceProxy('/zero', Zero)
@@ -198,7 +232,6 @@ rot = 0.0/6*np.pi
 initialize_the_motor()      # initalization
 set_the_speed()             # set the motion stage Speed
 go_to_center(rot)
-
 
 ####################### Calibrate F/T sensor #########################
 rospy.sleep(1)
@@ -231,19 +264,13 @@ for rot_rep in xrange(nrep_rot):
         rospy.set_param('save_file_name', expfilename)
         print (expfilename)
         set_the_speed(angle = angle)
-        move_motor(angle,rot)
-        # rospy.sleep(30)
+        scanthesample(angle,rot)
         save_data()
         print('saved')
         rospy.sleep(0.5)
         if rep == nrep -1:
             rospy.sleep(1)   # make sure record is terminated completely
-        # tell current position
         print(tell_pos())
-
-    ######### Record the force and torque ##########
-
-############# ?? ################
 
 c('MO') #turn off all motors
 del c #delete the alias
