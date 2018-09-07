@@ -68,7 +68,7 @@ def move_motor(angle = 0.7853981633974483, rot = 0):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
-    readlength = 65         # 80mm
+    readlength = 65         # unit: mm
     read_vec = [np.cos(angle), np.sin(angle), 0]
     start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
     start_point[2] = rot*180/np.pi
