@@ -15,6 +15,7 @@ from geometry_msgs.msg import WrenchStamped
 # import settings
 import mylistener
 import json
+import datetime
 
 
 if __name__ == "__main__":
@@ -91,7 +92,7 @@ def move_motor(angle = 0.7853981633974483, rot = 0):
     c('PAB='+str(start_point_count[1])) #relative move, 3000 ctsc
     c('PAC='+str(start_point_count[2])) #relative move, 3000 cts
     # c('PA '+str(start_point_count[0])+' ,'+str(start_point_count[1])+' ,'+str(start_point_count[2])) #relative move, 3000 cts
-    c('TW 10000,10000,10000')  # 10s
+    # c('TW 10000,10000,10000')  # 10s
     c('BG ABC') #begin motion
     print(' Moving to start_point for this line...')
     # g.GMotionComplete('ABC')
@@ -204,22 +205,31 @@ go_to_center(rot)
 rospy.sleep(1)
 rospy.sleep(0.5)
 print('sleeping for 8s, Please make sure all masses removed before calibration')
-rospy.sleep(8)
+rospy.sleep(3) #changed from 8 for testing
 setZero()
 rospy.sleep(3)
 print('sleeping for 15s, waiting for mass to be added')
-rospy.sleep(15)
+rospy.sleep(3) #changed from 15 for testing
+
+#defining file_num
+
 
 # c('MO') #turn off all motors
-
+#variables to be saved
 nrep = 36
 nrep_rot = 1
 surface_id = 1 # parallel
 shape_id = 1   # ball
-delta = 30     # 30um
-height = 30     #30um
+delta = 30     # 30um (w)
+height = 30     #30um (d)
 vel = 30        #30mm/s
-
+mat = '61D'     #material
+#file_num is also a saved variable
+#if file_num doesn't exist assign it a value of 0
+try:
+    file_num
+except NameError:
+    file_num = 0
 angle_step = 2.0*np.pi/nrep
 # rospy.sleep(30)
 # rot_list = [0, 0.5*np.pi, 0, 0.5*np.pi]
@@ -248,9 +258,20 @@ for rot_rep in xrange(nrep_rot):
     for rep in xrange(nrep):
         print('rep = '+str(rep))
         angle = rep*angle_step
-        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
+        now = str(datetime.datetime.now()) #current time
+        inst_date = now.split("-")
+        year = inst_date[0] #find the year
+        month = inst_date[1] #find the month
+        day1 = inst_date[2] #pull out the day from the time
+        dayt = day1.split(" ")
+        day = dayt[0] #find the day
+        print("This is the year from the filename:" + " " + year)
+        print("This is the month from the filename:" + " " + month)
+        print("This is the day from the filename:" + " " + day)
+        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f_mat=%s_file =%i.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep, mat, file_num)
+        expfilename = year + "-" + month + "-" + day + "-" + expfilename
         rospy.set_param('save_file_name', expfilename)
-        print (expfilename)
+        print ("expfilename: " + expfilename)
         set_the_speed(angle = angle)
         move_motor(angle,rot)
         # rospy.sleep(30)
