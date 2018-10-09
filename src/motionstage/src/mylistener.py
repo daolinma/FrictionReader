@@ -65,7 +65,6 @@ def start_read(req):
 def save_readings(req):
     global pos_record
     global wrench_record
-    global file_num
     filename = rospy.get_param('save_file_name')
     output_data = {'pos_list':pos_record, 'wrench_list': wrench_record }
     # save_path = '/home/mcube-daolin/catkin_ws/src/motionstage/'
@@ -78,6 +77,7 @@ def save_readings(req):
     # print("This is the day from the savepath:" + " " + day)
     save_path = '/home/mcube-daolin/Dropbox (MIT)/Daolin Lab Repo/Projects/2018 Engineering Friction with Micro-textures/Data Collected/' + year + "-" + month + "-" + day + '/'
     filename = save_path + filename
+    # file_num = rospy.get_param('save_file_number')
     # if old_filename == filename:
     #     file_num += 1
     # else: 
@@ -94,10 +94,9 @@ def save_readings(req):
         # print("Savepath you created: ")
         # print(repr(save_path))
         print("New Directory Created")
-    #    global number_files
-    #    number_files = 1
-    #    print('Number of files: ' + str(number_files))
-    #    filename = filename + str(number_files)
+        #maybe i can just add the next 2 lines of code after this function  is called
+        # file_num += 1
+        # rospy.set_param('save_file_number',file_num)
         with open(filename, 'w') as outfile:  # write data to json file
             # print(type(outfile))
             print(filename)
@@ -105,6 +104,18 @@ def save_readings(req):
             outfile.close()
     else: #if the path already exists write the file in the existing folder
         print("Directory Already Exists")
+        print('old path: ' + filename)
+        #while the filename is not unique add an "a" in from of the filename
+        while os.path.isfile(filename):
+            print("File Already Exists")
+            #change the file name
+            expfile_previous = rospy.get_param('save_file_name')
+            path_split = filename.split(day + '/')
+            # print('Split path:')
+            # print(path_split)
+            filename = save_path +  'a' + path_split[1]
+            # print('new path: ' + filename)
+            # exp = 'a'+ 'save_file_name'
         with open(filename, 'w') as outfile:
                 json.dump(output_data, outfile)
                 outfile.close()

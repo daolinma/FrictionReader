@@ -216,7 +216,7 @@ rospy.sleep(3) #changed from 15 for testing
 
 # c('MO') #turn off all motors
 #variables to be saved
-nrep = 36
+nrep = 2 #used to be 36 changed to 4 for debugging purposes
 nrep_rot = 1
 surface_id = 1 # parallel
 shape_id = 1   # ball
@@ -224,12 +224,7 @@ delta = 30     # 30um (w)
 height = 30     #30um (d)
 vel = 30        #30mm/s
 mat = '61D'     #material
-#file_num is also a saved variable
-#if file_num doesn't exist assign it a value of 0
-try:
-    file_num
-except NameError:
-    file_num = 0
+
 angle_step = 2.0*np.pi/nrep
 # rospy.sleep(30)
 # rot_list = [0, 0.5*np.pi, 0, 0.5*np.pi]
@@ -253,6 +248,9 @@ angle_step = 2.0*np.pi/nrep
 #     # tell current position
 #     print(tell_pos())
 
+
+
+
 for rot_rep in xrange(nrep_rot):
     rot = (rot_rep)*1.0/6*np.pi
     for rep in xrange(nrep):
@@ -268,21 +266,20 @@ for rot_rep in xrange(nrep_rot):
         print("This is the year from the filename:" + " " + year)
         print("This is the month from the filename:" + " " + month)
         print("This is the day from the filename:" + " " + day)
-        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f_mat=%s_file =%i.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep, mat, file_num)
-        expfilename = year + "-" + month + "-" + day + "-" + expfilename
+        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f_mat=%s.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep, mat)
+        expfilename = year + "-" + month + "-" + day + "-" + expfilename     
         rospy.set_param('save_file_name', expfilename)
         print ("expfilename: " + expfilename)
         set_the_speed(angle = angle)
         move_motor(angle,rot)
         # rospy.sleep(30)
         save_data()
-        print('saved')
+        print('saved')         
         rospy.sleep(0.5)
         if rep == nrep -1:
             rospy.sleep(1)   # make sure record is terminated completely
         # tell current position
-        print(tell_pos())
-
+        print(tell_pos()) 
     ######### Record the force and torque ##########
 
 ############# ?? ################
