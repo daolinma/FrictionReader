@@ -15,6 +15,7 @@ from geometry_msgs.msg import WrenchStamped
 # import settings
 import mylistener
 import json
+import datetime
 
 
 if __name__ == "__main__":
@@ -61,7 +62,7 @@ def move_stages(angle = 0.7853981633974483, rot = 0):
     # initialize_the_motor()
     c('SH ABC')
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
-    readlength = 65         # 80mm
+    readlength = 65         # unit: mm
     read_vec = [np.cos(angle), np.sin(angle), 0]
     start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
     start_point[2] = rot*180/np.pi
@@ -76,12 +77,13 @@ def move_stages(angle = 0.7853981633974483, rot = 0):
     print('PAA='+str(start_point_count[0]))
     print('PAB='+str(start_point_count[1]))
     print('PAC='+str(start_point_count[2]))
- 
+
     c('SH ABC')
     c('PAA='+str(start_point_count[0])) #relative move, 3000 cts
     c('PAB='+str(start_point_count[1])) #relative move, 3000 ctsc
     c('PAC='+str(start_point_count[2])) #relative move, 3000 cts
-    c('TW 10000,10000,10000')  # 10s
+    # c('PA '+str(start_point_count[0])+' ,'+str(start_point_count[1])+' ,'+str(start_point_count[2])) #relative move, 3000 cts
+    # c('TW 10000,10000,10000')  # 10s
     c('BG ABC') #begin motion
     print(' Moving to start_point for this line...')
     check_motion_complete([start_point_count[0],start_point_count[1],start_point_count[2]])
@@ -153,7 +155,7 @@ def scanthesample(angle,rot):
     print('PAA='+str(start_point_count[0]))
     print('PAB='+str(start_point_count[1]))
     print('PAC='+str(start_point_count[2]))
-    
+
     set_the_speed()
     go_to_pose(start_point_count)
     rospy.sleep(1)
@@ -237,32 +239,71 @@ go_to_center(rot)
 rospy.sleep(1)
 rospy.sleep(0.5)
 print('sleeping for 8s, Please make sure all masses removed before calibration')
-rospy.sleep(8)
+rospy.sleep(3) #changed from 8 for testing
 setZero()
 rospy.sleep(3)
 print('sleeping for 15s, waiting for mass to be added')
-rospy.sleep(15)
+rospy.sleep(3) #changed from 15 for testing
+
+#defining file_num
+
 
 # c('MO') #turn off all motors
-
-nrep = 20
+#variables to be saved
+nrep = 2 #used to be 36 changed to 4 for debugging purposes
 nrep_rot = 1
 surface_id = 1 # parallel
 shape_id = 1   # ball
-delta = 30     # 30um
-height = 30     #30um
+delta = 30     # 30um (w)
+height = 30     #30um (d)
 vel = 30        #30mm/s
+mat = '61D'     #material
 
 angle_step = 2.0*np.pi/nrep
 # rospy.sleep(30)
+# rot_list = [0, 0.5*np.pi, 0, 0.5*np.pi]
+# angle_list = [0, 0.5*np.pi, 0.5*np.pi, 0]
+
+# for rep in range(4):
+#     print('rep = '+str(rep))
+#     angle = angle_list[rep]
+#     rot = rot_list[rep]
+#     expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
+#     rospy.set_param('save_file_name', expfilename)
+#     print (expfilename)
+#     set_the_speed(angle = angle)
+#     move_motor(angle,rot)
+#     # rospy.sleep(30)
+#     save_data()
+#     print('saved')
+#     rospy.sleep(0.5)
+#     if rep == nrep -1:
+#         rospy.sleep(1)   # make sure record is terminated completely
+#     # tell current position
+#     print(tell_pos())
+
+
+
+
 for rot_rep in xrange(nrep_rot):
     rot = (rot_rep)*1.0/6*np.pi
     for rep in xrange(nrep):
         print('rep = '+str(rep))
         angle = rep*angle_step
-        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep)
+        now = str(datetime.datetime.now()) #current time
+        inst_date = now.split("-")
+        year = inst_date[0] #find the year
+        month = inst_date[1] #find the month
+        day1 = inst_date[2] #pull out the day from the time
+        dayt = day1.split(" ")
+        day = dayt[0] #find the day
+        print("This is the year from the filename:" + " " + year)
+        print("This is the month from the filename:" + " " + month)
+        print("This is the day from the filename:" + " " + day)
+        expfilename = 'record_surface=%s_shape=%s_delta=%.0f_height=%.0f_vel=%.0f_rot=%.2f__angle=%.2f_rep=%.0f_mat=%s.json' % (surface_id, shape_id,delta, height, vel, rot,angle, rep, mat)
+        expfilename = year + "-" + month + "-" + day + "-" + expfilename
         rospy.set_param('save_file_name', expfilename)
-        print (expfilename)
+        print ("expfilename: " + expfilename)
         set_the_speed(angle = angle)
         scanthesample(angle,rot)
         save_data()
@@ -270,7 +311,11 @@ for rot_rep in xrange(nrep_rot):
         rospy.sleep(0.5)
         if rep == nrep -1:
             rospy.sleep(1)   # make sure record is terminated completely
+        # tell current position
         print(tell_pos())
+    ######### Record the force and torque ##########
+
+############# ?? ################
 
 c('MO') #turn off all motors
 del c #delete the alias

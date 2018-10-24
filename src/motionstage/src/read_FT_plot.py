@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 import roslaunch
 import netft_rdt_driver
 
-uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-roslaunch.configure_logging(uuid)
-launch = roslaunch.parent.ROSLaunchParent(uuid, ["/home/mcube-daolin/catkin_ws/src/SysConfig/rosnodes.launch"])
-launch.start()
+# uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+# roslaunch.configure_logging(uuid)
+# launch = roslaunch.parent.ROSLaunchParent(uuid, ["/home/mcube-daolin/catkin_ws/src/SysConfig/rosnodes.launch"])
+# launch.start()
 
 idx = 0
 def ftmsg2listandflip(ftmsg):
