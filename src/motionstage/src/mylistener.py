@@ -77,17 +77,7 @@ def save_readings(req):
     # print("This is the day from the savepath:" + " " + day)
     save_path = '/home/mcube-daolin/Dropbox (MIT)/Daolin Lab Repo/Projects/2018 Engineering Friction with Micro-textures/Data Collected/' + year + "-" + month + "-" + day + '/'
     filename = save_path + filename
-    # file_num = rospy.get_param('save_file_number')
-    # if old_filename == filename:
-    #     file_num += 1
-    # else: 
-    #     file_num = 0
-    # print("saving file")
-    # print(output_data)
-    # print(type(output_data))
-    # print("This save_path you want to create: ")
-    # print(repr(save_path))
-    #try instead save_path ~= old save path
+
     if not os.path.isdir(save_path):#if the directory doesn't exist make one and save the file inside
         print("Directory doesn't exist")
         os.mkdir(save_path)

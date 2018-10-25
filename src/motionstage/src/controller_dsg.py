@@ -26,13 +26,13 @@ def initialize_the_motor():
     c('SH ABC')    # Servo Here: servo A
     # c('SHB')    # Servo Here: servo A
 def set_the_speed(angle = 0.7853981633974483):
-    read_vec = [np.cos(angle), np.sin(angle), 0]
+    read_vec = [np.cos(angle), np.sin(angle), 0] #the  current direction of the vector
     vel = 40000
     # print(str(int(vel*read_vec[0])), str(int(vel*read_vec[1])),str(int(vel*read_vec[2])))
-    print('setting speed to '+str(int(vel*read_vec[0]))+' ,'+str(int(vel*read_vec[1]))+' ,' +str(20000)  )
-    c('SPA='+str(int(vel*read_vec[0]))) #speead, 1000 cts/sec
-    c('SPB='+str(int(vel*read_vec[1]))) #speead, 1000 cts/sec
-    c('SPC='+str(str(20000))) #speead, 1000 cts/sec
+    print('setting speed to '+str(int(vel*read_vec[0]))+' ,'+str(int(vel*read_vec[1]))+' ,' +str(20000)  ) ####why is the speed the direction times a velocity
+    c('SPA='+str(int(vel*read_vec[0]))) #speed, 1000 cts/sec
+    c('SPB='+str(int(vel*read_vec[1]))) #speed, 1000 cts/sec
+    c('SPC='+str(str(20000))) #speed, 1000 cts/sec
 
 def mm2count(read_vec_mm = [0.1, 0.2, 0.3]):
     global ScaleLinearStage
@@ -63,31 +63,40 @@ def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
             flag = False
         rospy.sleep(0.5)
 
+######Questions for check_motion_complete function#####
+#does the above code know the motion is complete by checking to see how far away you are from a preset end point?
 
+######Questions for move_motor function############
+#where did the value for angle come from? Should I change this?
+#are my comments right?
+#where is '/pos_reader/x' and pos_reader being set
+#when defining start_point why are you subtracting the direction from the positon? is this accounting for the ball radius?
 
-def move_motor(angle = 0.7853981633974483, rot = 0):
+#add an agrument for startpoint and the diameter
+#offset the circle so that its a circle within each microtexture
+def move_motor(angle = 0.7853981633974483, rot = 0): #angle is the change in the angle for each pass
     # initialize_the_motor()
-    c('SH ABC')
-    pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
-    readlength = 65         # unit: mm
-    read_vec = [np.cos(angle), np.sin(angle), 0]
-    start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength
-    start_point[2] = rot*180/np.pi
+    c('SH ABC') #servo here, A B and C, tells the controller to use the current positon as the command position and enable servo control here so in this case all motors can move
+    pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')] #list of the position of the center of the micro-texture?
+    readlength = 65         # unit: mm diameter of the circle (will change with bigger texture)
+    read_vec = [np.cos(angle), np.sin(angle), 0]#gives you the direction of the path
+    start_point = np.array(pos_reader) - np.array(read_vec)*0.5*readlength #makes an array of the positions and direction 
+    start_point[2] = rot*180/np.pi#convert to degrees
     end_point = np.array(pos_reader) + np.array(read_vec)*0.5*readlength
-    end_point[2] = rot*180/np.pi
+    end_point[2] = rot*180/np.pi#convert to degrees
     print('start_point = '+str(start_point))
     print('end_point = '+str(end_point))
-    start_point_count = mm2count(start_point)
-    end_point_count = mm2count(end_point)
+    start_point_count = mm2count(start_point)#converts the start point to counts for the encoder
+    end_point_count = mm2count(end_point)#converts the end point to counts for the encoder
     set_the_speed()
     print('[MOTOR] Speed has been reset')
-    print('PAA='+str(start_point_count[0]))
+    print('PAA='+str(start_point_count[0]))#prints where the absolute position on the start point is for motor A
     print('PAB='+str(start_point_count[1]))
     print('PAC='+str(start_point_count[2]))
     # c('PAA=660000')
     # c('PAB=-256190')
     # c('PAC=0')
-    c('SH ABC')
+  #  c('SH ABC')#why is this here isn't it enought to say it once sinc eyou havne't actually moved the servo
     c('PAA='+str(start_point_count[0])) #relative move, 3000 cts
     c('PAB='+str(start_point_count[1])) #relative move, 3000 ctsc
     c('PAC='+str(start_point_count[2])) #relative move, 3000 cts
@@ -99,7 +108,7 @@ def move_motor(angle = 0.7853981633974483, rot = 0):
     check_motion_complete([start_point_count[0],start_point_count[1],start_point_count[2]])
     # rospy.sleep(5)
     print('sending ST')
-    c('ST')
+    c('ST')#stop
     # print('sent ST')
     print('[MOTOR] Motion Complete')
     rospy.sleep(1)
@@ -130,8 +139,8 @@ def go_to_center(rot = 0):
     print('end_point = '+str(end_point))
     end_point_count = mm2count(end_point)
 
-    ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')
-    end_point_count[2] = int(rot*180/np.pi/ScaleRotaryStage)
+    ScaleRotaryStage = rospy.get_param('/ScaleRotaryStage')#converts from counts to mm
+    end_point_count[2] = int(rot*180/np.pi/ScaleRotaryStage)#degrees
     print(end_point_count[2], rot)
     c('PAA= '+str(end_point_count[0]))
     c('PAB= '+str(end_point_count[1]))
@@ -142,7 +151,7 @@ def go_to_center(rot = 0):
     print('[MOTOR] Moving to center...',end_point_count)
     print('####################################################')
 
-    c('TW 10000,10000,10000')  # 10s
+    #c('TW 10000,10000,10000')  # 10s, time out for IN position
     c('BG ABC') #begin motion
     # c('MC AB') #begin motion
     check_motion_complete([end_point_count[0],end_point_count[1],end_point_count[2]])
@@ -205,18 +214,17 @@ go_to_center(rot)
 rospy.sleep(1)
 rospy.sleep(0.5)
 print('sleeping for 8s, Please make sure all masses removed before calibration')
-rospy.sleep(3) #changed from 8 for testing
+rospy.sleep(8) #changed from 8 for testing
 setZero()
 rospy.sleep(3)
 print('sleeping for 15s, waiting for mass to be added')
-rospy.sleep(3) #changed from 15 for testing
+rospy.sleep(15) #changed from 15 for testing
 
-#defining file_num
 
 
 # c('MO') #turn off all motors
 #variables to be saved
-nrep = 2 #used to be 36 changed to 4 for debugging purposes
+nrep = 36 #used to be 36 changed to 4 for debugging purposes
 nrep_rot = 1
 surface_id = 1 # parallel
 shape_id = 1   # ball
@@ -250,9 +258,9 @@ angle_step = 2.0*np.pi/nrep
 
 
 
-
+#I need to change the loop to go 4 times for each microtexture
 for rot_rep in xrange(nrep_rot):
-    rot = (rot_rep)*1.0/6*np.pi
+    rot = (rot_rep)*1.0/6*np.pi#rotate by a constant value
     for rep in xrange(nrep):
         print('rep = '+str(rep))
         angle = rep*angle_step
