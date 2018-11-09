@@ -23,7 +23,8 @@ def position_publisher():
 ##########  publisher ###########
     pub = rospy.Publisher('stage_pos', Float32MultiArray, queue_size=10)
     rospy.init_node('stage_position_node', anonymous=True)
-    rate = rospy.Rate(100) # 100hz
+    # rate = rospy.Rate(100) # 100hz
+    rate = rospy.Rate(1000) # 1000hz
 
     # data_msg = Int32MultiArray()
     data_msg = Float32MultiArray()
