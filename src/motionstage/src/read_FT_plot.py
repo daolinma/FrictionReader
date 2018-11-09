@@ -25,7 +25,6 @@ def ftmsg2listandflip(ftmsg):
     return [ftmsg.wrench.force.x,ftmsg.wrench.force.y,ftmsg.wrench.force.z,
             ftmsg.wrench.torque.x,ftmsg.wrench.torque.y,ftmsg.wrench.torque.z]
 
-
 def callback_wrench(data):
     global idx
     idx = idx+1
