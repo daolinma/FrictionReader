@@ -37,6 +37,8 @@ def set_the_speed(angle = 0.7853981633974483):
     cmd_send_ = 'SPA='+str(int(vel*read_vec[0]))
     print(cmd_send_)
     print(type(cmd_send_))
+    print(type(c))
+    print(c)
     c(cmd_send_)
     c('SPA='+str(int(vel*read_vec[0]))) #speed, 1000 cts/sec
     c('SPB='+str(int(vel*read_vec[1]))) #speed, 1000 cts/sec
@@ -85,7 +87,7 @@ def check_motion_complete(end_point = [0,0,0], epsilon = 1200):
 ##############add an argument for the new center giving the original center as the default to define the function
     #having problems putting in the original values as a list
 #original start position off center defined by sys_param: [ 49.952  -12.9721   0.    ]
-def move_motor(angle = 0.7853981633974483, rot = 0, diameter = 20, new_center = [49.952, -12.9721, 0]): #angle is the change in the angle for each pass
+def move_motor(angle = 0.7853981633974483, rot = 0, diameter = 20, new_center = [79.9520, -12.9721, 0]): #angle is the change in the angle for each pass
     # initialize_the_motor()
     c('SH ABC') #servo here, A B and C, tells the controller to use the current positon as the command position and enable servo control here so in this case all motors can move
     #pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')] #list of the position of the center of the micro-texture?
@@ -142,6 +144,7 @@ def move_motor(angle = 0.7853981633974483, rot = 0, diameter = 20, new_center = 
     c('ST')
     print('[MOTOR] Motion Complete')
     rospy.sleep(1)
+    print('Performed One Pass')
 def go_to_center(rot = 0):
 
     tell_pos()
@@ -225,11 +228,11 @@ go_to_center(rot)
 rospy.sleep(1)
 rospy.sleep(0.5)
 print('sleeping for 8s, Please make sure all masses removed before calibration')
-rospy.sleep(2) #changed from 8 for testing
+rospy.sleep(8) #changed from 8 for testing
 setZero()
 rospy.sleep(3)
 print('sleeping for 15s, waiting for mass to be added')
-rospy.sleep(2) #changed from 15 for testing
+rospy.sleep(15) #changed from 15 for testing
 
 
 
@@ -275,33 +278,36 @@ angle_step = 2.0*np.pi/nrep
 for rot_rep in xrange(nrep_rot):
     rot = (rot_rep)*1.0/6*np.pi#rotate by a constant value
     theta = 45 #the angle of the first microtexture (degrees)
+    theta = theta*np.pi/180 #converts to radians
     pos_reader = [rospy.get_param('/pos_reader/x'),rospy.get_param('/pos_reader/y'),rospy.get_param('/pos_reader/z')]
     print("This is the pos_reader: ")
     print(pos_reader)
     theta_step = 360/texture_num #90 (degrees) for 4 microtextures
-    for texture in xrange(texture_num + 1):#loop for each micro-texture
+    theta_step = theta_step*np.pi/180 #convert theta step to radians
+    for texture in xrange(texture_num):#loop for each micro-texture
         if texture_num != 1:#defines a new center for each micro-texture if there is more than 1 texture
-            # theta += 360/texture_num -45 #define the new theta to plug into the rotation matrix (convert to radians)
-            
-            theta = theta*np.pi/180 #convert to radians
+            # theta += 360/texture_num -45 #define the new theta to plug into the rotation matrix (convert to radians)            
             print('This is theta: ')
             print(theta)
-            c, s = np.cos(theta), np.sin(theta) #define the cosine and sine for the new degree
-            print("This is cosine: ")
-            print(c)
-            print('This is sine: ')
-            print(s)
-            offset = 15 #the distance of the center of microtextures to the center of the sample
-            dir_to_center = np.array([c,s]) #make a unit vector from the center to the new degree
+            co, si = np.cos(theta), np.sin(theta) #define the cosine and sine for the new degree
+            #print("This is cosine: ")
+            #print(co)
+            #print('This is sine: ')
+            #print(si)
+            offset = 25 #the distance of the center of microtextures to the center of the sample
+            dir_to_center = np.array([co,si]) #make a unit vector from the center to the new degree
             vec_ncenter = dir_to_center*offset#give the vector a magnitude of the offset
-            print('This is vec_ncenter')
-            print(vec_ncenter)
+            #print('This is vec_ncenter')
+            #print(vec_ncenter)
             x_cord_ncenter = vec_ncenter[0]
             y_cord_ncenter = vec_ncenter[1]
             new_center = np.array(pos_reader) + np.array([x_cord_ncenter, y_cord_ncenter, 0])#move to the new center by adding specimen center to vector
-            print('This is new_center: ')
-            print(new_center)
+            #print('This is new_center: ')
+            #print(new_center)
             theta += theta_step #change theta to the theta of the next microtexture
+            print("New Theta", theta)
+            print("Theta_Step", theta_step)
+            print("New Center", new_center)
             #R_2D = np.array([[c,-s], [s, c]])#create a 2D rotation matrix
             #vec_ncenter = vec_ncenter*R_2D#rotate the vector to the next microtexture
 
